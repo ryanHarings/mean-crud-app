@@ -8,7 +8,20 @@ var bodyParser = require('body-parser');
 var swig = require('swig');
 var mongoose = require('mongoose');
 var config = require('../_config');
+var winston = require('winston');
+var logger = new (winston.Logger) ({
+  transports: [
+    new (winston.transports.Console) ({level: 'error'}),
+    new (winston.transports.File) ({
+      filename: 'server.log',
+      level: 'debug'
+    })
+  ]
+});
 
+// *** logger *** //
+
+logger.add(logger.transports.File, { filename: 'server.log' });
 
 // *** routes *** //
 var routes = require('./routes/index.js');
@@ -25,9 +38,9 @@ var environment = process.env.NODE_ENV || 'development';
 var mongoURI = config.mongoURI.development;
 mongoose.connect(mongoURI, function(err, res) {
   if (err) {
-    console.log('Error connecting to the database. ' + err);
+    logger.error('Error connecting to the database. ' + err);
   } else {
-    console.log('Connected to Database: ' + config.mongoURI[app.settings.env]);
+    logger.info('Connected to Database: ' + config.mongoURI[app.settings.env]);
   }
 });
 
